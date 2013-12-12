@@ -6,7 +6,8 @@ inherit git
 DESCRIPTION="xutils test ebuild for a github environment"
 HOMEPAGE="http://www.wyplay.com"
 
-EGIT_BASE_URI="git@github.com:ptisserand"
+EGIT_BASE_URI="git@github.com"
+EGIT_GROUP="ptisserand"
 EGIT_REPO_URI="hello-test-to-remove.git"
 : ${EGIT_BRANCH:="master"}
 : ${EGIT_REVISION:="de39571"}

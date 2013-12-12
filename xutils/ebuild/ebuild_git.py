@@ -18,6 +18,7 @@ git_base_uri = None
 re_git_ebuild = re.compile(r'(\s|^)inherit.*\sgit(\s|$)')
 re_git_branch = re.compile(EBUILD_VAR_REGEXP % 'EGIT_BRANCH')
 re_git_version = re.compile(EBUILD_VAR_REGEXP % 'EGIT_REV|EGIT_REVISION')
+re_git_group = re.compile(EBUILD_VAR_REGEXP % 'EGIT_GROUP')
 re_git_uri = re.compile(EBUILD_VAR_REGEXP % 'EGIT_REPO_URI')
 re_git_base_uri = re.compile(EBUILD_VAR_REGEXP % 'EGIT_BASE_URI')
 
@@ -167,7 +168,7 @@ class XEbuildGit(XEbuildSCM):
                         return uri
                 else:
 		     	host = self._get_base_uri()
-			self.uri = "%s/%s" % (self._get_base_uri(), uri)
+			self.uri = "%s%s%s" % (self._get_base_uri(), '/' if re_git_is_uri.match(host) else ':' + self.get_var(re_git_group) + '/', uri)
                         return self.uri
 
         def get_latest(self):

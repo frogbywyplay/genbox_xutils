@@ -66,7 +66,7 @@ class GitCmd(object):
 		cmd = ['git', 'config', '--get', 'remote.origin.url']
 		(ret, out, err) = self.__run_cmd(cmd)
 		remote_uri = out if ret == 0 else uri
-		return True if 'github.com' in remote_uri else False
+		return True if 'github.com' or 'gitlab' in remote_uri else False
 
         def get_hash(self, uri, version):
                 """ return a hash from a tag or branch or even from a hash """
