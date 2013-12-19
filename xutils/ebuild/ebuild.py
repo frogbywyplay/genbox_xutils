@@ -72,7 +72,7 @@ class XEbuild(object):
 
                 self.pn = split[0]
                 if split[2] == "r0":
-                        self.pr = None 
+                        self.pr = None
                 else:
                         self.pr = split[2]
 
@@ -87,7 +87,7 @@ class XEbuild(object):
                         self.pv['number'].extend(match.group(3)[1:].split("."))
                 # ebuild revision with a [a-z] letter (empty string for others)
                 self.pv['letter'] = match.group(5)
-                # package suffix or empty string 
+                # package suffix or empty string
                 self.pv['suffix'] = match.group(6)
 
         def expand_vars(self, line):
@@ -113,8 +113,10 @@ class XEbuild(object):
                 env['PF'] = '%s-%s' % (env['PN'], env['PVR'])
                 env['CATEGORY'] = self.get_category()
 
-		if os.environ.has_key("EHG_BASE_URI"):
-			env['EHG_BASE_URI'] = os.environ['EHG_BASE_URI']
+                if os.environ.has_key("EHG_BASE_URI"):
+                    env['EHG_BASE_URI'] = os.environ['EHG_BASE_URI']
+                if os.environ.has_key("EGIT_BASE_URI"):
+                    env['EGIT_BASE_URI'] = os.environ['EGIT_BASE_URI']
 
                 cmd = Popen("echo -n \"%s\"" % line, bufsize=0,
                       shell=True, cwd=None, env=env, stdout=PIPE, stderr=PIPE)
@@ -131,7 +133,7 @@ class XEbuild(object):
                         return None
                 elif type(var_regex) == str:
                         var_regex = re.compile(EBUILD_VAR_REGEXP % var_regex)
-                        
+
                 match = ebuild_match(self.buffer, var_regex.search, all)
                 if not match:
                         return None
