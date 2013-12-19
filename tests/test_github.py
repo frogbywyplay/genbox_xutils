@@ -43,6 +43,8 @@ class GithubTester(unittest.TestCase):
 				},
 				stdout=PIPE, stderr=PIPE)
                 (stdout, stderr) = p.communicate()
+                if 0 != p.wait():
+                      raise Exception("Failed to clone repository: ", stderr)
 		self.savedPath = os.getcwd()
 		os.chdir(where)
 
@@ -65,13 +67,9 @@ class GithubTester(unittest.TestCase):
 				'SSH_AUTH_SOCK' : os.getenv('SSH_AUTH_SOCK')
 				},
 				stdout=PIPE, stderr=PIPE)
-                (stdout, stderr) = p.communicate()
-		if 'successfully authenticated' in stderr:
-			self.has_github = True
-		elif 'Permission denied (publickey).' in stderr:
-			self.has_github = False
-		else:
-			self.has_github = False
+                ret = p.wait()
+                # github return 1 if OK
+                self.has_github = ret == 1
 		return self.has_github
 
         def testGithubGetHash(self):
