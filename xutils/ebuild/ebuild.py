@@ -2,7 +2,7 @@
 # Copyright (C) 2006-2013 Wyplay, All Rights Reserved.
 #
 
-import os, re, sys
+import os, portage, re, sys
 
 from subprocess import Popen, PIPE
 
@@ -115,8 +115,13 @@ class XEbuild(object):
 
                 if os.environ.has_key("EHG_BASE_URI"):
                     env['EHG_BASE_URI'] = os.environ['EHG_BASE_URI']
+		else:
+		    env['EHG_BASE_URI'] = portage.settings['EHG_BASE_URI']
+
                 if os.environ.has_key("EGIT_BASE_URI"):
                     env['EGIT_BASE_URI'] = os.environ['EGIT_BASE_URI']
+		else:
+		    env['EGIT_BASE_URI'] = portage.settings['EGIT_BASE_URI']
 
                 cmd = Popen("echo -n \"%s\"" % line, bufsize=0,
                       shell=True, cwd=None, env=env, stdout=PIPE, stderr=PIPE)
