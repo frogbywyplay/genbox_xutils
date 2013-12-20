@@ -94,7 +94,7 @@ def find_packages(dir):
 
 setup(
     name = "xutils",
-    version = "2.2.8",
+    version = "2.2.9",
     description = "Xutils tools for genbox",
     author = "Wyplay",
     author_email = "noreply@wyplay.com",
