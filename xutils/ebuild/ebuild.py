@@ -27,7 +27,7 @@ from xutils.xerror import XUtilsError
 
 import exceptions
 
-from xportage import pkgsplit, ver_regexp
+from xportage import XPortage, pkgsplit, ver_regexp
 
 EBUILD_VAR_REGEXP=r'^\s*(?P<def>:\s+\${)?(?P<var>%s)(?(def):)=(?P<dbl>\")?(?P<value>(?:[^\\"]|\\.)*)(?(dbl)\")(?(def)})\s*(?:#.*)?$'
 EBUILD_VAR_DEFTPL=': ${%s:="%s"}\n'
@@ -129,15 +129,19 @@ class XEbuild(object):
                 env['PF'] = '%s-%s' % (env['PN'], env['PVR'])
                 env['CATEGORY'] = self.get_category()
 
+		portage = XPortage(os.getenv('ROOT', '/'))
+
                 if os.environ.has_key("EHG_BASE_URI"):
                     env['EHG_BASE_URI'] = os.environ['EHG_BASE_URI']
 		else:
-		    env['EHG_BASE_URI'] = portage.settings['EHG_BASE_URI']
+		    env['EHG_BASE_URI'] = portage.config["EHG_BASE_URI"]
 
                 if os.environ.has_key("EGIT_BASE_URI"):
                     env['EGIT_BASE_URI'] = os.environ['EGIT_BASE_URI']
 		else:
-		    env['EGIT_BASE_URI'] = portage.settings['EGIT_BASE_URI']
+		    env['EGIT_BASE_URI'] = portage.config["EGIT_BASE_URI"]
+
+		del portage
 
                 cmd = Popen("echo -n \"%s\"" % line, bufsize=0,
                       shell=True, cwd=None, env=env, stdout=PIPE, stderr=PIPE)
