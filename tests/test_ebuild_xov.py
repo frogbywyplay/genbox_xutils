@@ -163,7 +163,7 @@ XOV_TEST_PORTDIR="True"
                 oldcwd = os.getcwd()
                 tmpdir = tempfile.mkdtemp()
                 try:
-                    os.environ['EGIT_BASE_URI'] = 'ssh://git@s1lxblackduck01.wyplay.int'
+                    os.environ['EGIT_BASE_URI'] = 'ssh://git.wyplay.int/var/lib/git'
                     ebuild = os.path.join(tmpdir, 'adk-1.0.ebuild')
                     gitdir = os.path.join(tmpdir, 'git')
                     os.mkdir(gitdir)
@@ -177,7 +177,7 @@ EAPI="1"
 LICENSE="Wyplay"
 SLOT="0"
 
-EGIT_REPO_URI="odole/frog-profile.git"
+EGIT_REPO_URI="test.git"
 EGIT_BRANCH="master"
 
 XOV_LOCAL_PROTO="git"
