@@ -48,6 +48,10 @@ class GitTester(unittest.TestCase):
                         os.makedirs(SCM_DIR)
 
                 os.system('cd %s; git init' % SCM_DIR)
+		os.system('cd %s; echo "[user]" >> .git/config' % SCM_DIR)
+		os.system('cd %s; echo "name = Test" >> .git/config' % SCM_DIR)
+		os.system('cd %s; echo "email = hg@wyplay.com" >> .git/config' % SCM_DIR)
+
                 cmd = s.GitCmd()
 
                 os.system('echo 42 > %s/test' % SCM_DIR)
