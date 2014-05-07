@@ -43,8 +43,19 @@ class XUtilsError(Exception):
                 else:
                         return self.num
 
-        def __str__(self):
-                return self.get_error()
+	def __str__(self):
+		s = self.get_error()
+		if self.num:
+			s += " (num=" + str(self.num) + ")"
+		if self.error_log:
+			s += ": " + self.error_log
+		return s
+
+	def __repr__(self):
+		return "XUtilsError(error=%r, num=%s, error_log=%r)" % (
+				self.error,
+				"None" if self.num == None else str(self.num),
+				self.error_log)
 
         def __int__(self):
                 return self.get_error_number()

@@ -35,23 +35,58 @@ class xerrorTester(unittest.TestCase):
                 unittest.TestCase.__init__(self, methodName)
                 self.path = realpath(dirname(sys.modules[__name__].__file__))
 
-        def testXerror(self):
-                try:
-                        raise err.XUtilsError(error='text', num=42, error_log='my log')
-                except err.XUtilsError, e:
-                        self.failUnlessEqual(e.get_error(), 'text')
-                        self.failUnlessEqual(e.get_error_log(), 'my log')
-                        self.failUnlessEqual(e.get_error_number(), 42)
-                        self.failUnlessEqual(str(e), 'text')
-                        self.failUnlessEqual(int(e), 42)
+	def testTextNumLog(self):
+		try:
+			raise err.XUtilsError(error='text', num=42, error_log='my log')
+		except err.XUtilsError, e:
+			self.assertEqual(e.get_error(), 'text')
+			self.assertEqual(e.get_error_log(), 'my log')
+			self.assertEqual(e.get_error_number(), 42)
+			self.assertEqual(str(e), 'text (num=42): my log')
+			self.assertEqual(int(e), 42)
 
-                try:
-                        raise err.XUtilsError(error='text')
-                except err.XUtilsError, e:
-                        self.failUnlessEqual(e.get_error_log(), None)
-                        self.failUnlessEqual(e.get_error_number(), 0)
-                        self.failUnlessEqual(int(e), 0)
+	def testNoNum(self):
+		try:
+			raise err.XUtilsError(error='text', error_log='my log')
+		except err.XUtilsError, e:
+			self.assertEqual(e.get_error(), 'text')
+			self.assertEqual(e.get_error_log(), 'my log')
+			self.assertEqual(e.get_error_number(), 0)
+			self.assertEqual(str(e), 'text: my log')
+			self.assertEqual(int(e), 0)
 
+	def testOnlyText(self):
+		try:
+			raise err.XUtilsError(error='text')
+		except err.XUtilsError, e:
+			self.assertEqual(e.get_error_log(), None)
+			self.assertEqual(e.get_error_number(), 0)
+			self.assertEqual(str(e), 'text')
+			self.assertEqual(int(e), 0)
+
+	def testRepr(self):
+		from xutils.xerror import XUtilsError
+		e = eval(repr(XUtilsError("Error", 123, "abc")))
+		self.assertEqual(e.get_error_log(), "abc")
+		self.assertEqual(e.get_error_number(), 123)
+		self.assertEqual(str(e), 'Error (num=123): abc')
+		self.assertEqual(int(e), 123)
+
+	def testReprOnlyText(self):
+		from xutils.xerror import XUtilsError
+		e = eval(repr(XUtilsError("Error")))
+		self.assertEqual(e.get_error_log(), None)
+		self.assertEqual(e.get_error_number(), 0)
+		self.assertEqual(str(e), 'Error')
+		self.assertEqual(int(e), 0)
+
+	def testReprNoNum(self):
+		from xutils.xerror import XUtilsError
+		e = eval(repr(XUtilsError("Error", error_log="abc")))
+		self.assertEqual(e.get_error_log(), "abc")
+		self.assertEqual(e.get_error_number(), 0)
+		self.assertEqual(str(e), 'Error: abc')
+		self.assertEqual(int(e), 0)
 
 if __name__ == "__main__":
         unittest.main()
