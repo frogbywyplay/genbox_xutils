@@ -24,6 +24,13 @@ import unittest
 import os, os.path
 import shutil
 import sys
+
+from os.path import realpath, dirname, exists
+
+curr_path = realpath(dirname(sys.modules[__name__].__file__))
+
+sys.path.insert(0, curr_path + '/..')
+
 import xutils.scm
 from subprocess import Popen, PIPE
 
@@ -34,7 +41,6 @@ class GithubTester(unittest.TestCase):
                 unittest.TestCase.__init__(self, methodName)
                 self.path = os.path.realpath(os.path.dirname(sys.modules[__name__].__file__))
 		self.has_github = None
-		self.gitcmd = xutils.scm.GitCmd()
 		self.uri = 'git@github.com:ptisserand/hello-test-to-remove.git'
 		self.branch = 'master'
 		self.revision = 'de39571'
@@ -43,6 +49,7 @@ class GithubTester(unittest.TestCase):
 	def setUp(self):
 		if self.__github_check():
 			self.__clone_repo()
+		self.gitcmd = xutils.scm.create_git_cmd(DEST)
 
 	def tearDown(self):
 		if self.__github_check():
@@ -94,7 +101,7 @@ class GithubTester(unittest.TestCase):
 		"""
 		if not self.__github_check():
 			return
-		hash = self.gitcmd.get_hash(DEST, self.tag)
+		hash = self.gitcmd.get_hash(self.tag)
 		self.assertEqual(self.revision, hash[:7])
 
         def testGithubTags(self):
@@ -103,8 +110,8 @@ class GithubTester(unittest.TestCase):
 		"""
 		if not self.__github_check():
 			return
-		tags = self.gitcmd.tags(DEST)
-		tag = self.gitcmd.tags(DEST, self.revision)
+		tags = self.gitcmd.tags()
+		tag = self.gitcmd.tags(self.revision)
 		self.assertEqual({'0.0.1': 'de3957100582c76727505623a4c846f5097e5308', '0.0.2': 'f725a0f47fc6c0aa85792d63da079be00d3a46da'}, tags)
 		self.assertEqual([self.tag], tag)
 
@@ -114,8 +121,8 @@ class GithubTester(unittest.TestCase):
 		"""
 		if not self.__github_check():
 			return
-		all_log = self.gitcmd.log(DEST)
-		log = self.gitcmd.log(DEST, self.tag)
+		all_log = self.gitcmd.log()
+		log = self.gitcmd.log(self.tag)
 		self.assertTrue(all_log)
 		self.assertTrue('Nov 5 10:37:05' in all_log)
 		self.assertTrue(log)
@@ -128,23 +135,24 @@ class GithubTester(unittest.TestCase):
 		#TODO: test with a file / test without file or revision supplied
 		if not self.__github_check():
 			return
-		diff = self.gitcmd.diff(DEST, self.revision)
+		diff = self.gitcmd.diff(self.revision)
 		self.assertTrue(diff)
 		self.assertTrue('Just for test' in diff)
 
 
-        def testGithubLsremote(self):
+        def testGithubTags(self):
 		"""
 		Get a revision (SHA1) from a github repo
 		"""
 		if not self.__github_check():
 			return
-		local_head = self.gitcmd.get_hash(DEST, 'HEAD')
-		local_tag = self.gitcmd.get_hash(DEST, self.tag)
-		remote_head = self.gitcmd.ls_remote(DEST)
-		remote_tag = self.gitcmd.ls_remote(DEST, self.tag)
-		self.assertEqual(local_head[:7], remote_head[:7])
-		self.assertEqual(local_tag[:7], remote_tag[:7])
+		local_head = self.gitcmd.get_hash('HEAD')
+		local_tag = self.gitcmd.get_hash(self.tag)
+		tags = self.gitcmd.tags()
+		self.assertTrue(self.tag in tags)
+		self.assertEqual(tags[self.tag], local_tag)
+		self.assertTrue('HEAD' in tags)
+		self.assertEqual(tags['HEAD'], local_head)
 
 if __name__ == "__main__":
         unittest.main()

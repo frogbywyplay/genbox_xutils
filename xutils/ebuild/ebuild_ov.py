@@ -24,7 +24,7 @@ from ebuild import ebuild_match, EBUILD_VAR_REGEXP
 from ebuild_git import XEbuildGit, re_git_uri
 from ebuild_hg import XEbuildHG, re_hg_uri
 from ebuild_scm import ebuild_factory, re_tag_name
-from xutils.scm import GitCmd, HGCmd
+from xutils.scm import create_git_cmd, HGCmd
 
 from xutils.xerror import XUtilsError
 
@@ -40,7 +40,6 @@ class XEbuildTarget(XEbuildHG, XEbuildGit):
         def __init__(self, name, buffer=None):
                 self.version_set = False
                 self.ov_list = None
-                self.gitcmd = GitCmd()
                 self.hgcmd = HGCmd()
 		for chunk in buffer:
 			if re_git_uri.match(chunk) is not None:
@@ -269,13 +268,8 @@ class XEbuildTarget(XEbuildHG, XEbuildGit):
                                     ov['hash'] = ident['hash']
                                     ov['tags'] = self.hgcmd.tags(ov['uri'], version)
                                 elif ov['proto'] == 'git':
-                                    out = self.gitcmd.ls_remote(ov['uri'], version)
-				    if version in out:
-				    	for ref in out.splitlines():
-						if version in ref:
-							ov['hash'] = ref.split()[0]
-				    else:
-				    	ov['hash'] = version
+                                    cmd = create_git_cmd(ov['uri'])
+                                    ov['hash'] = cmd.get_hash(version)
                                 else:
                                     raise ValueError("unsupported SCM: %s" % ov)
                 return ov_list

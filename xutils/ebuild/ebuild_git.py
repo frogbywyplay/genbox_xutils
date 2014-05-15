@@ -22,7 +22,7 @@ import os, re
 from ebuild_scm import XEbuildSCM, ebuild_factory, re_tag_name
 from ebuild import ebuild_match, EBUILD_VAR_REGEXP, EBUILD_VAR_DEFTPL
 
-from xutils.scm import GitCmd
+from xutils.scm import create_git_cmd
 from xutils.xerror import XUtilsError
 from xutils.output import warn
 from xportage import XPortage
@@ -44,8 +44,7 @@ class XEbuildGit(XEbuildSCM):
         def __init__(self, name, buffer=None):
                 self.version = None
                 self.branch = None
-                self.uri = None
-                self.gitcmd = GitCmd()
+                self.cmd = None
                 XEbuildSCM.__init__(self, name, buffer)
 
         def check_type(file):
@@ -86,30 +85,24 @@ class XEbuildGit(XEbuildSCM):
                         if not re_tag_name.match(version):
                                 raise XUtilsError('Can\'t rename ebuild with %s' % version)
 
-                uri = XEbuildGit.get_uri(self)
+                cmd = XEbuildGit.get_cmd(self)
                 self.ident = {}
-                self.ident['hash'] = self.gitcmd.get_hash(uri, version)
-                hash = self.ident['hash']
+		# Trying to dereference the version: <rev>^{commit}
+		# See 'man git-rev-parse'
+		self.ident['hash'] = hash = cmd.get_hash(version +'^{}')
+		branch = XEbuildGit.get_version(self)
 
-		if self.gitcmd.is_github_repo(uri) and check:
-			warn('Currently doesn\'t know how to check on a github repo => skip check.')
-			check = False
-
-                if check:
-                        branch = XEbuildGit.get_branch(self)
-                        if branch:
-                                merge_base = self.gitcmd.merge_base(uri, branch, hash)
-                                if not merge_base or not merge_base.startswith(hash):
-                                        raise XUtilsError(error='branch mismatch', error_log='%s is not on %s' \
-                                                  % (hash, branch))
+		if check and not cmd.check_revision(version, branch) and \
+				not cmd.check_revision(hash, branch):
+			raise XUtilsError(error='Cannot resolve revision %r in git repo %r.' %
+					(version, cmd.uri))
 
                 tags = []
                 try:
-                        tags = self.gitcmd.tags(uri, hash)
+                        tags = cmd.tags(hash)
                 except XUtilsError, e:
                         # it just means that git didn't find any tags in repository
                         pass
-
 
                 self.ident['tags'] = tags
                 replaced = -1
@@ -168,10 +161,13 @@ class XEbuildGit(XEbuildSCM):
                         return base_uri
 
         def get_uri(self):
+                return self.get_cmd().get_uri()
+
+        def get_cmd(self):
                 global re_git_uri
 
-                if self.uri:
-                        return self.uri
+                if self.cmd:
+                        return self.cmd
 
                 # Get uri from ebuild
                 uri = self.get_var(re_git_uri)
@@ -179,17 +175,20 @@ class XEbuildGit(XEbuildSCM):
                         raise XUtilsError(error='corrupted Git ebuild',
                                           error_log="Can't find EGIT_REPO_URI")
 
-                if re_git_is_uri.match(uri):
-                        self.uri = uri
-                        return uri
-                else:
-		     	host = self._get_base_uri()
-			self.uri = "%s%s%s" % (self._get_base_uri(), '/' if re_git_is_uri.match(host) else ':' + self.get_var(re_git_group) + '/', uri)
-                        return self.uri
+		if re_git_is_uri.match(uri):
+			self.cmd = create_git_cmd(uri)
+		else:
+			host = self._get_base_uri()
+			if host.endswith('/'):
+				host = host[:-1]
+			self.cmd = create_git_cmd(
+				host +
+				('/' if re_git_is_uri.match(host) else ':' + self.get_var(re_git_group) + '/') +
+				uri)
+		return self.cmd
 
         def get_latest(self):
-                return self.gitcmd.get_hash(XEbuildGit.get_uri(self),
-                                            XEbuildGit.get_branch(self))
+                return XEbuildGit.get_cmd(self).get_hash(XEbuildGit.get_branch(self))
 
         def is_template(self):
                 return self.pv['number'][-1] == "0"

@@ -27,7 +27,8 @@ from subprocess import Popen, PIPE
 
 curr_path = realpath(dirname(sys.modules[__name__].__file__))
 
-sys.path.insert(0, curr_path + '/..')
+sys.path.insert(0, os.path.join(curr_path, '..'))
+
 import xutils.scm
 import xutils.ebuild.ebuild_scm as b
 from xutils.xerror import XUtilsError
@@ -47,22 +48,23 @@ class ebuildTester(unittest.TestCase):
 
         def testEbuildType(self):
                 eb = b.ebuild_factory(EBUILD_TMP + CURR_EBUILD)
-                self.failUnless(eb != None, 'Ebuild not detected as an SCM ebuild')
-                self.failUnlessEqual(eb.get_type(), 'git')
+                self.assertTrue(eb != None, 'Ebuild not detected as an SCM ebuild')
+                self.assertEqual(eb.get_type(), 'git')
 
         def testEbuildVersion(self):
                 eb = b.ebuild_factory(EBUILD_TMP + CURR_EBUILD)
-                self.failUnlessEqual(eb.get_version(), self.revision)
+                self.assertEqual(eb.get_version(), self.revision)
 
         def testEbuildName(self):
                 eb = b.ebuild_factory(EBUILD_TMP + CURR_EBUILD)
-                self.failUnlessEqual(eb.get_name(), CURR_EBUILD[:-7])
-                self.failUnless(eb.is_template())
+                self.assertEqual(eb.get_name(), CURR_EBUILD[:-7])
+                self.assertTrue(eb.is_template())
                 eb.set_version('0.0.2', check=True)
-                self.failUnlessEqual(eb.get_name(), 'github-test-0.0.2')
-                self.failUnless(not eb.is_template())
+                self.assertEqual(eb.get_uri(), self.uri)
+                self.assertEqual(eb.get_name(), 'github-test-0.0.2')
+                self.assertTrue(not eb.is_template())
                 eb.set_version('0.0.1')
-                self.failUnlessEqual(eb.get_name(), 'github-test-0.0.1')
+                self.assertEqual(eb.get_name(), 'github-test-0.0.1')
 	
 	def testEbuildUserName(self):
 		eb = b.ebuild_factory(EBUILD_TMP + CURR_EBUILD)
@@ -80,25 +82,25 @@ class ebuildTester(unittest.TestCase):
                 try:
                         eb.set_version('35', check=False, name='pouet')
                 except XUtilsError, e:
-                        self.failUnless(str(e).startswith("'pouet' naming scheme is not supported"), 'wrong error: %s' % str(e))
+                        self.assertTrue(str(e).startswith("'pouet' naming scheme is not supported"), 'wrong error: %s' % str(e))
                         res = 1
-                self.failUnless(res == 1, 'An error should have been raised')
+                self.assertTrue(res == 1, 'An error should have been raised')
 
                 res = 0
                 try:
                         eb.set_version('35_beta42', check=False, name='tag')
                 except XUtilsError, e:
-                        self.failUnless(str(e).startswith('Can\'t rename ebuild with'), 'wrong error: %s' % str(e))
+                        self.assertTrue(str(e).startswith('Can\'t rename ebuild with'), 'wrong error: %s' % str(e))
                         res = 1
-                self.failUnless(res == 1, 'An error should have been raised')
+                self.assertTrue(res == 1, 'An error should have been raised')
 
                 res = 0
                 try:
                         eb.set_version(None, check=False, name='tag')
                 except XUtilsError, e:
-                        self.failUnless(str(e).startswith('Can\'t rename ebuild when no tag'), 'wrong error: %s' % str(e))
+                        self.assertTrue(str(e).startswith('Can\'t rename ebuild when no tag'), 'wrong error: %s' % str(e))
                         res = 1
-                self.failUnless(res == 1, 'An error should have been raised')
+                self.assertTrue(res == 1, 'An error should have been raised')
 
         def testEbuildURI(self):
 		"""
@@ -135,8 +137,8 @@ class ebuildTester(unittest.TestCase):
                 (stdout, stderr) = p.communicate()
 		savedPath = os.getcwd()
 		os.chdir(destination)
-		gitcmd = xutils.scm.GitCmd()
-		head_hashes = gitcmd.get_hash(uri=destination, version='HEAD')
+		gitcmd = xutils.scm.create_git_cmd(destination)
+		head_hashes = gitcmd.get_hash('HEAD')
 
 		#isolate hash
 		re_hash = re.compile('^(?P<hash>\S+)\s+\S+$')

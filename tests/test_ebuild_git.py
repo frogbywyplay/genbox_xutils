@@ -36,31 +36,29 @@ CURR_EBUILD = "git-test-1.0.0.0.ebuild"
 
 tested_modules=[ 'xutils.ebuild' ]
 class ebuildTester(unittest.TestCase):
-        def __init__(self, methodName='runTest'):
-                unittest.TestCase.__init__(self, methodName)
-                self.path = realpath(dirname(sys.modules[__name__].__file__))
 
         def testEbuildType(self):
                 eb = b.ebuild_factory(EBUILD_TMP + CURR_EBUILD)
-                self.failUnless(eb != None, 'Ebuild not detected as an SCM ebuild')
-                self.failUnlessEqual(eb.get_type(), 'git')
+                self.assertTrue(eb != None, 'Ebuild not detected as an SCM ebuild')
+                self.assertEqual(eb.get_type(), 'git')
 
         def testEbuildVersion(self):
                 eb = b.ebuild_factory(EBUILD_TMP + CURR_EBUILD)
-                self.failUnlessEqual(eb.get_version(), 'master')
+                self.assertEqual(eb.get_version(), 'master')
 
         def testEbuildName(self):
                 eb = b.ebuild_factory(EBUILD_TMP + CURR_EBUILD)
-                self.failUnlessEqual(eb.get_name(), CURR_EBUILD[:-7])
-                self.failUnless(eb.is_template())
+                self.assertEqual(eb.get_name(), CURR_EBUILD[:-7])
+                self.assertTrue(eb.is_template())
                 eb.set_version('35', check=True)
-                self.failUnlessEqual(eb.get_name(), 'git-test-35')
-                self.failUnless(not eb.is_template())
+                self.assertEqual(eb.get_uri(), 'ssh://git.wyplay.int/var/lib/git/kernel-wyplay-2.6.23.y.git')
+                self.assertEqual(eb.get_name(), 'git-test-35')
+                self.assertTrue(not eb.is_template())
                 eb.set_version('34')
-                self.failUnlessEqual(eb.get_name(), 'git-test-34')
-                self.failUnlessEqual(eb.get_version(), eb.gitcmd.get_hash(eb.get_uri(), '34'))
+                self.assertEqual(eb.get_name(), 'git-test-34')
+                self.assertEqual(eb.get_version(), eb.cmd.get_hash('34^{}'))
                 eb.get_latest()
-	
+
 	def testEbuildUserName(self):
 		eb = b.ebuild_factory(EBUILD_TMP + CURR_EBUILD)
 		res = 0
@@ -77,25 +75,25 @@ class ebuildTester(unittest.TestCase):
                 try:
                         eb.set_version('35', check=False, name='pouet')
                 except XUtilsError, e:
-                        self.failUnless(str(e).startswith("'pouet' naming scheme is not supported"), 'wrong error: %s' % str(e))
+                        self.assertTrue(str(e).startswith("'pouet' naming scheme is not supported"), 'wrong error: %s' % str(e))
                         res = 1
-                self.failUnless(res == 1, 'An error should have been raised')
+                self.assertTrue(res == 1, 'An error should have been raised')
 
                 res = 0
                 try:
                         eb.set_version('35_beta42', check=False, name='tag')
                 except XUtilsError, e:
-                        self.failUnless(str(e).startswith('Can\'t rename ebuild with'), 'wrong error: %s' % str(e))
+                        self.assertTrue(str(e).startswith('Can\'t rename ebuild with'), 'wrong error: %s' % str(e))
                         res = 1
-                self.failUnless(res == 1, 'An error should have been raised')
+                self.assertTrue(res == 1, 'An error should have been raised')
 
                 res = 0
                 try:
                         eb.set_version(None, check=False, name='tag')
                 except XUtilsError, e:
-                        self.failUnless(str(e).startswith('Can\'t rename ebuild when no tag'), 'wrong error: %s' % str(e))
+                        self.assertTrue(str(e).startswith('Can\'t rename ebuild when no tag'), 'wrong error: %s' % str(e))
                         res = 1
-                self.failUnless(res == 1, 'An error should have been raised')
+                self.assertTrue(res == 1, 'An error should have been raised')
 
 if __name__ == "__main__":
         unittest.main()

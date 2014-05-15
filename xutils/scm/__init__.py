@@ -19,4 +19,4 @@
 #
 
 from hgcmd import HGCmd
-from gitcmd import GitCmd
+from gitcmd import create_cmd as create_git_cmd
