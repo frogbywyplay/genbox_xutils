@@ -226,24 +226,30 @@ class RemoteGitTester(unittest.TestCase):
 			self.cmd.get_hash('6ef69'),
 			'6ef69a56d34286c757d2e0f30e45516c83349623')
 
-	def testResolve_short_hash_46f7cb(self):
+	def testResolve_short_master_hash(self):
+		'''Using master hash to resolve from short hash.'''
+		master_hash = self.cmd.get_hash('master')
 		self.assertEqual(
-			self.cmd.get_hash('46f7cb'),
-			'46f7cbf594aa4cc766ecdd063eae6f7c02faa74e')
+			self.cmd.get_hash(master_hash[:6]),
+			master_hash)
 
-	def testResolve_short_hash_46f7cb_deref(self):
+	def testResolve_short_master_hash_deref(self):
+		master_hash = self.cmd.get_hash('master')
+		first6letters = self.cmd.get_hash('master')[:6]
 		self.assertEqual(
-			self.cmd.get_hash('46f7cb^{}'),
-			'46f7cbf594aa4cc766ecdd063eae6f7c02faa74e')
+			self.cmd.get_hash(master_hash[:6] + '^{}'),
+			master_hash)
 
-	def testResolve_full_hash_46f7cb(self):
+	def testResolve_full_master_hash(self):
+		master_hash = self.cmd.get_hash('master')
 		self.assertEqual(
-			self.cmd.get_hash('46f7cbf594aa4cc766ecdd063eae6f7c02faa74e'),
-			'46f7cbf594aa4cc766ecdd063eae6f7c02faa74e')
+			self.cmd.get_hash(master_hash),
+			master_hash)
 
-	def testResolve_full_hash_6f7cb(self):
-		'''Part of 46f7cb - matching start.'''
-		self.assertEqual(self.cmd.get_hash('6f7cb'), None)
+	def testResolve_inner_part_master_hash(self):
+		'''Using the middle of the master hash - testing matching start.'''
+		master_hash = self.cmd.get_hash('master')
+		self.assertEqual(self.cmd.get_hash(master_hash[10:16]), None)
 
 	def testResolve_tag_2_2_11(self):
 		self.assertEqual(
