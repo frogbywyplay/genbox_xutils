@@ -41,6 +41,7 @@ class XEbuildTarget(XEbuildHG, XEbuildGit):
                 self.version_set = False
                 self.ov_list = None
                 self.hgcmd = HGCmd()
+                self.type = None
 		for chunk in buffer:
 			if re_git_uri.match(chunk) is not None:
 				self.type = 'git'
@@ -52,7 +53,7 @@ class XEbuildTarget(XEbuildHG, XEbuildGit):
 				continue
 		if self.type is None:
 			raise XUtilsError(error='internal error',
-                                          error_log='unkonwn type for genbox config repo')
+                                          error_log="can't detect ebuild scm type")
 		elif self.type == 'git':
 			XEbuildGit.__init__(self, name, buffer)
 		else: #self.type == 'hg'
