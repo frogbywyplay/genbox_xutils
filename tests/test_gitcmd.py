@@ -27,7 +27,7 @@ but it isn't possible to resolve arbitrary hash in the case of
 a remote repository, only those informed by 'git ls-remote'.'''
 
 import unittest
-import sys, os, re
+import sys, os, re, shutil
 
 from os.path import realpath, dirname, exists
 
@@ -42,7 +42,6 @@ URI_LOCAL = os.path.join(curr_path, 'scm_test/repo')
 
 # URL for the remote git repo
 URI_REMOTE = 'git@gitlab.wyplay.int:tools/genbox_xutils.git'
-
 
 class LocalGitTester(unittest.TestCase):
 	'''Testing GitCmd class using a local git repository.'''
@@ -293,9 +292,25 @@ class RemoteGitTester(unittest.TestCase):
 		self.assertRaises(XUtilsError, self.cmd.check_revision,
 				'abracadabra', 'abracadabra')
 
+# Specific git configuration
+XDG_CONFIG_HOME = curr_path
+GIT_XDG_CONFIG = os.path.join(XDG_CONFIG_HOME, 'git')
 
 class IsRemoteTester(unittest.TestCase):
 	'''Testing is_remote(uri) function.'''
+        def tearDown(self):
+                if os.path.exists(GIT_XDG_CONFIG):
+                        shutil.rmtree(GIT_XDG_CONFIG)
+                        os.environ = self.env_bkup.copy()
+                
+        def config_insteadof(self, key, val):
+                self.env_bkup = os.environ.copy()
+                os.makedirs(GIT_XDG_CONFIG)
+                cfg = open(os.path.join(GIT_XDG_CONFIG, "config"), 'w')
+                print >>cfg, '[url "%s"]\n' % (val)+ \
+                      '     insteadOf = "%s"\n' % (key)
+                cfg.close()
+                os.environ['XDG_CONFIG_HOME'] = XDG_CONFIG_HOME
 
 	def testAbracadabra(self):
 		self.assertRaises(XUtilsError, is_remote, "abracadabra")
@@ -312,6 +327,21 @@ class IsRemoteTester(unittest.TestCase):
 	def testssh(self):
 		self.assertTrue(is_remote("ssh://toto@tata.tutu:/ti/ti"))
 
+        def testInsteadOf(self):
+                self.config_insteadof('test_git', 'git@github.com')
+                self.assertTrue(is_remote("test_git:frogbwyplay/genbox_xutils.git"))
+
+        def testInsteadOf_scp(self):
+                self.config_insteadof('test_git', 'toto@tata.tutu')
+                self.assertTrue(is_remote("test_git:/ti/ta"))
+
+        def testInsteadOf_ssh(self):
+                self.config_insteadof('test_git', 'ssh://toto@tata.tutu')
+                self.assertTrue(is_remote("test_git:/ti/ti"))
+
+        def testInsteadOf_failed(self):
+                self.config_insteadof('test_git2', 'git@github.com')
+                self.assertRaises(XUtilsError, is_remote, "test_git:frogbwyplay/genbox_xutils.git")
 
 if __name__ == "__main__":
         unittest.main()
