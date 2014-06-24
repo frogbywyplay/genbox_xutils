@@ -45,6 +45,19 @@ def is_hash(v):
 	return True
 
 
+def replace_instead(uri):
+        """Do 'insteadOf' substitution if needed"""
+        p = Popen(['git', 'config', '--list'], env=os.environ, stdout=PIPE, stderr=PIPE)
+        (out, err) = p.communicate()
+        for i in out.splitlines():
+                ii = i.split('=')
+                if ii[0].split('.')[-1] == 'insteadof':
+                        key = ii[1]
+                        val = '.'.join(ii[0].split('.')[1:-1])
+                        uri = uri.replace(key, val)
+        return uri
+
+
 class Base(object):
 	'''Base GIT access class.'''
 
@@ -341,6 +354,7 @@ def is_remote(uri):
 	If it isn't a remote GIT repository, it must be an accessible path,
 	i.e. the working tree.'''
 
+        uri = replace_instead(uri)
 	# Known GIT protocols
 	if uri.startswith("ssh://") or uri.startswith("git://") or \
 			uri.startswith("http://") or uri.startswith("https://") or \
