@@ -1,17 +1,17 @@
 #
 # Copyright (C) 2006-2014 Wyplay, All Rights Reserved.
 # This file is part of xutils.
-# 
+#
 # xutils is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 2 of the License, or
 # (at your option) any later version.
-# 
+#
 # xutils is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with this program; see file COPYING.
 # If not, see <http://www.gnu.org/licenses/>.
@@ -48,12 +48,17 @@ class XEbuildSCM(XEbuild):
 
         def get_branch(self):
                 return None
+        def set_branch(self, branch):
+                """ Overwrite the branch name of the current ebuild
+                        @param branch, the branch name to set
+                """
+                info("option for set branch name is unavailable for %s" % self.__class__.__name__)
         def get_version(self):
 		""" Returns the SCM version of this ebuild
 			(defaults to branch if this is a HEAD ebuild) """
                 return None
         def set_version(self, version, check=False, name='shortrev'):
-                """ 
+                """
                         @param version, the version to set
                         @param check, make some integrity check about the version (check the branch information in the ebuild)
                         @param name, the method tu use to rename the ebuild, can be 'shortrev' or 'tag'

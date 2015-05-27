@@ -1,17 +1,17 @@
 #
 # Copyright (C) 2006-2014 Wyplay, All Rights Reserved.
 # This file is part of xutils.
-# 
+#
 # xutils is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 2 of the License, or
 # (at your option) any later version.
-# 
+#
 # xutils is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with this program; see file COPYING.
 # If not, see <http://www.gnu.org/licenses/>.
@@ -34,7 +34,7 @@ re_ov_version = re.compile(EBUILD_VAR_REGEXP % 'XOV_(?P<ov>[a-zA-Z0-9_]+)_REVISI
 re_ov_branch = re.compile(EBUILD_VAR_REGEXP % 'XOV_(?P<ov>[a-zA-Z0-9_]+)_BRANCH')
 re_ov_portdir = re.compile(EBUILD_VAR_REGEXP % 'XOV_(?P<ov>[a-zA-Z0-9_]+)_PORTDIR')
 
-re_ov_ebuild = re.compile(r'(\s|^)inherit.*\s(xov|target)(\s|$)')
+re_ov_ebuild = re.compile(r'(\s|^)inherit.*\s(xov|target|target2)(\s|$)')
 
 class XEbuildTarget(XEbuildHG, XEbuildGit):
         def __init__(self, name, buffer=None):
@@ -148,7 +148,7 @@ class XEbuildTarget(XEbuildHG, XEbuildGit):
                         upper_name = ov['name'].upper()
 
                         if check and version[1].has_key(ov['name']):
-                                # This overlay revision is updated, let's check it    
+                                # This overlay revision is updated, let's check it
                                 branch = self._get_ov_branch(ov['name'])
                                 if branch != ov['branch']:
                                         raise XUtilsError(error='branch mismatch',
@@ -246,7 +246,7 @@ class XEbuildTarget(XEbuildHG, XEbuildGit):
         def _identify_ovs(self, version_list, partial=False):
                 """
                         @param version_list a list of overlays revisions
-                        @param partial when set to False revisions of every overlays will be set to a hash 
+                        @param partial when set to False revisions of every overlays will be set to a hash
                 """
                 ov_list = []
                 for ov in self._get_ov_list():
