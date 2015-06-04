@@ -63,9 +63,13 @@ class Base(object):
 
 	def __init__(self, uri):
 		self._uri = uri
+		self._real_uri = replace_instead(uri)
 
 	def get_uri(self):
 		return self._uri
+
+	def get_real_uri(self):
+		return self._real_uri
 
 	uri = property(get_uri, None, None, "URL of the git repository.")
 

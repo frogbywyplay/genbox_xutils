@@ -66,6 +66,8 @@ class XEbuildSCM(XEbuild):
                 pass
         def get_uri(self):
                 return None
+        def get_real_uri(self):
+                return self.get_uri()
         def get_type(self):
                 return 'undefined'
         def get_latest(self):

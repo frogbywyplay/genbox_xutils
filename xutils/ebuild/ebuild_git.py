@@ -172,6 +172,9 @@ class XEbuildGit(XEbuildSCM):
         def get_uri(self):
                 return self.get_cmd().get_uri()
 
+        def get_real_uri(self):
+                return self.get_cmd().get_real_uri()
+
         def get_cmd(self):
                 global re_git_uri
 
