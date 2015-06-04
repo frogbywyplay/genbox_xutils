@@ -29,7 +29,7 @@ import exceptions
 
 from xportage import XPortage, pkgsplit, ver_regexp
 
-EBUILD_VAR_REGEXP=r'^\s*(?P<def>:\s+\${)?(?P<var>%s)(?(def):)=(?P<dbl>\")?(?P<value>(?:[^\\"]|\\.)*)(?(dbl)\")(?(def)})\s*(?:#.*)?$'
+EBUILD_VAR_REGEXP=r'^\s*(?P<def>:\s+\${)?(?P<var>%s)(?(def):)?=(?P<dbl>\")?(?P<value>(?:[^\\"]|\\.)*)(?(dbl)\")(?(def)})\s*(?:#.*)?$'
 EBUILD_VAR_DEFTPL=': ${%s:="%s"}\n'
 
 re_has_vars = re.compile(r'(?:[^\\]|^)\$(?P<acc>{)?[^\s]+(?(acc)})')
