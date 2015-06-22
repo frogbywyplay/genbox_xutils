@@ -20,7 +20,7 @@
 
 import os, re
 from ebuild_scm import XEbuildSCM, ebuild_factory, re_tag_name
-from ebuild import ebuild_match, EBUILD_VAR_REGEXP, EBUILD_VAR_DEFTPL, EBUILD_VAR_IF_UNSET_DEFTPL
+from ebuild import ebuild_match, EBUILD_VAR_REGEXP, EBUILD_VAR_DEFTPL
 
 from xutils.scm import create_git_cmd
 from xutils.xerror import XUtilsError
@@ -118,13 +118,13 @@ class XEbuildGit(XEbuildSCM):
                 for i, line in enumerate(self.buffer):
                         if replaced != i and re_git_version.match(line):
                                 self.buffer[i] = "# Tags: %s\n" % ' '.join(tags)
-                                self.buffer.insert(i + 1, EBUILD_VAR_IF_UNSET_DEFTPL % ('EGIT_REVISION', hash))
+                                self.buffer.insert(i + 1, EBUILD_VAR_DEFTPL % ('EGIT_REVISION', hash))
                                 replaced = i + 1
                                 # Continue to search for ugly corrupted ebuilds
                 if replaced == -1:
                         for i, line in enumerate(self.buffer):
                                 if re_git_branch.match(line):
-                                        self.buffer.insert(i + 1, EBUILD_VAR_IF_UNSET_DEFTPL % ('EGIT_REVISION', hash))
+                                        self.buffer.insert(i + 1, EBUILD_VAR_DEFTPL % ('EGIT_REVISION', hash))
                                         self.buffer.insert(i + 1, "# Tags: %s\n" % ' '.join(tags))
                                         replaced = 1
                                         break
