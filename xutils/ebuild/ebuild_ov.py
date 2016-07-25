@@ -34,7 +34,7 @@ re_ov_version = re.compile(EBUILD_VAR_REGEXP % 'XOV_(?P<ov>[a-zA-Z0-9_]+)_REVISI
 re_ov_branch = re.compile(EBUILD_VAR_REGEXP % 'XOV_(?P<ov>[a-zA-Z0-9_]+)_BRANCH')
 re_ov_portdir = re.compile(EBUILD_VAR_REGEXP % 'XOV_(?P<ov>[a-zA-Z0-9_]+)_PORTDIR')
 
-re_ov_ebuild = re.compile(r'(\s|^)inherit.*\s(xov|target|target2|target-frog)(\s|$)')
+re_ov_ebuild = re.compile(r'(\s|^)inherit.*\s(xov|target|target2|target-[^\s]+)(\s|$)')
 
 class XEbuildTarget(XEbuildHG, XEbuildGit):
         def __init__(self, name, buffer=None):
