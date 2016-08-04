@@ -188,7 +188,7 @@ class Base(object):
 					error="Parsing 'git ls-remote' for %r failed" % self.uri,
 					error_log=i)
 			if m.group('name'):
-				if m.group('rev') == 'tags':
+				if m.group('rev') == 'tags' or m.group('rev') == 'heads':
 					t2h[m.group('name')] = m.group('hash')
 			else:
 				t2h["HEAD"] = m.group('hash')
